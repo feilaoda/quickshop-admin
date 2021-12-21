@@ -83,3 +83,26 @@ export async function removeRule(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+export async function getUsers(
+  params?: {
+    // path
+    /** projectId */
+    _pageIndex?: string;
+    _pageSize?: string;
+  },
+  body?: { [key: string]: any },
+  options?: { [key: string]: any },
+) {
+  console.log('POST /api/v1/system/sysUser/query');
+  const { ...queryParams } = params;
+  return request<API.ResultEntity>('/api/v1/system/sysUser/query', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    params: params,
+    data: body,
+    ...(options || {}),
+  });
+}

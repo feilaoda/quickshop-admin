@@ -183,14 +183,14 @@ const schema = {
       title: '部门',
       'x-decorator': 'FormItem',
       'x-component': 'Select',
-      'x-reactions': ['{{fetchDepartments}}'],
+      // 'x-reactions': ['{{fetchDepartments}}'],
     },
     roleIds: {
       type: 'array',
       title: '角色',
       'x-decorator': 'FormItem',
       'x-component': 'Checkbox.Group',
-      'x-reactions': ['{{fetchRoles}}'],
+      // 'x-reactions': ['{{fetchRoles}}'],
     },
   },
 };
@@ -209,6 +209,7 @@ export default (props) => {
   // const id = new URLSearchParams(search).get('id');
   const { userId } = useParams<string>();
 
+  console.log('user id', userId);
   useEffect(() => {
     if (!userId) {
       form.setInitialValues({
@@ -224,26 +225,26 @@ export default (props) => {
     } else {
       handleGetUser(userId).then((res) => {
         if (res != false) {
-          console.log('form reset', res);
-          form.setInitialValues({
-            account: 'Aston Martin' + userId,
-            name: 'Aston' + userId,
-            lastName: 'Martin' + userId,
-            email: 'aston_martin@aston.com',
-            gender: 1,
-            birthday: '1836-01-03',
-            address: ['110000', '110000', '110101'],
-          });
-
+          console.log('form get user', res);
           // form.setInitialValues({
-          //   account: res.account,
-          //   name: res.account,
-          //   password: '',
-          //   gender: res.gender,
-          //   phone: res.gender,
-          //   'department.id': res.departmentId,
-          //   roleIds: [],
+          //   account: 'Aston Martin' + userId,
+          //   name: 'Aston' + userId,
+          //   lastName: 'Martin' + userId,
+          //   email: 'aston_martin@aston.com',
+          //   gender: 1,
+          //   birthday: '1836-01-03',
+          //   address: ['110000', '110000', '110101'],
           // });
+
+          form.setInitialValues({
+            account: res.account,
+            name: res.account,
+            password: '',
+            gender: res.gender,
+            phone: res.gender,
+            'department.id': res.departmentId,
+            roleIds: [],
+          });
         }
         setLoading(false);
       });
@@ -319,9 +320,6 @@ export default (props) => {
                 }
               });
             }}
-            onInit={() => {
-              console.log('form init =====');
-            }}
           >
             <SchemaField schema={schema} />
             <FormButtonGroup.FormItem>
@@ -333,8 +331,8 @@ export default (props) => {
                 block
                 size="middle"
                 onClick={() => {
-                  form.reset();
-                  // history.push('/system/user');
+                  // form.reset();
+                  history.push('/system/user');
                 }}
               >
                 返回
@@ -348,15 +346,15 @@ export default (props) => {
                   handleGetUser(userId).then((res) => {
                     if (res != false) {
                       console.log('form reset', res);
-                      form.setInitialValues({
-                        account: 'Aston Martin' + userId,
-                        name: 'Aston' + userId,
-                        lastName: 'Martin' + userId,
-                        email: 'aston_martin@aston.com',
-                        gender: 1,
-                        birthday: '1836-01-03',
-                        address: ['110000', '110000', '110101'],
-                      });
+                      // form.setInitialValues({
+                      //   account: 'Aston Martin' + userId,
+                      //   name: 'Aston' + userId,
+                      //   lastName: 'Martin' + userId,
+                      //   email: 'aston_martin@aston.com',
+                      //   gender: 1,
+                      //   birthday: '1836-01-03',
+                      //   address: ['110000', '110000', '110101'],
+                      // });
 
                       // form.setInitialValues({
                       //   account: res.account,

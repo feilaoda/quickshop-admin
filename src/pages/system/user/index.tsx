@@ -13,6 +13,8 @@ import { PageContainer } from '@ant-design/pro-layout';
 import { convertData } from '@/utils/convert';
 import shopapi from '@/services/shopapi';
 
+import { getUsers } from '@/services/ant-design-pro/api';
+
 import { createForm } from '@formily/core';
 import { createSchemaField } from '@formily/react';
 import {
@@ -75,7 +77,7 @@ const departments = ['总部', '市场部门', '销售部门', '财务部', '运
 const handleGetUsers = async (params: any) => {
   // const hide = message.loading('正在添加');
   try {
-    return await shopapi.UserApi.getUsers(params);
+    return getUsers(params); // shopapi.UserApi.getUsers(params);
   } catch (error) {
     return false;
   }
@@ -164,7 +166,7 @@ const columns: ProColumns<TableListItem>[] = [
       <Link key={row.id} to={'/system/user/createOrEdit/' + row.id}>
         编辑
       </Link>,
-      <a key="link2">删除</a>,
+      // <a key="link2">删除</a>,
     ],
   },
 ];
@@ -185,6 +187,7 @@ export default () => {
         request={async (params, sorter, filter) => {
           // 表单搜索项会从 params 传入，传递给后端接口。
           const res = await handleGetUsers(params);
+          console.log('get users', res);
           let dataSource = [];
           if (res != false) {
             const data = filterUsers(res.data);
@@ -216,16 +219,16 @@ export default () => {
           title: '用户列表',
         }}
         toolBarRender={() => [
-          <Button
-            key="button"
-            icon={<PlusOutlined />}
-            type="primary"
-            onClick={() => {
-              history.push('/system/user/createOrEdit');
-            }}
-          >
-            新建
-          </Button>,
+          // <Button
+          //   key="button"
+          //   icon={<PlusOutlined />}
+          //   type="primary"
+          //   onClick={() => {
+          //     history.push('/system/user/createOrEdit');
+          //   }}
+          // >
+          //   新建
+          // </Button>,
         ]}
       />
     </PageContainer>

@@ -6,9 +6,8 @@ import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
-import { RequestConfig } from 'umi';
-import { message } from 'antd';
-
+import type { RequestConfig } from 'umi';
+import { message, notification } from 'antd';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -170,11 +169,11 @@ const errorHandler = (error) => {
   // }
 };
 
-export const request: RequestConfig = {
-  timeout: 2000,
-  errorConfig: {},
-  errorHandler: errorHandler,
-  middlewares: [tokenMiddleware],
-  requestInterceptors: [],
-  responseInterceptors: [],
-};
+// export const request: RequestConfig = {
+//   timeout: 2000,
+//   errorConfig: {},
+//   // errorHandler: errorHandler,
+//   middlewares: [tokenMiddleware],
+//   requestInterceptors: [],
+//   responseInterceptors: [],
+// };

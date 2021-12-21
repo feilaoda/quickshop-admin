@@ -200,4 +200,48 @@ export default {
   },
 
   'GET  /api/login/captcha': getFakeCaptcha,
+
+  'POST /api/v1/system/sysUser/query': async (req: Request, res: Response) => {
+    console.log('mock post /api/v1/system/sysUser/query');
+    const data = [
+      {
+        id: 1,
+        account: 'test_account1',
+      },
+      {
+        id: 2,
+        account: 'test-account2',
+      },
+    ];
+    const result = {
+      code: 0,
+      data: data,
+    };
+
+    return res.json(result);
+  },
+
+  'POST /api/v1/system/sysUser/get/1': (req: Request, res: Response) => {
+    const data = {
+      id: 1,
+      account: 'test_account1',
+    };
+    const result = {
+      code: 0,
+      data: data,
+    };
+    return res.json(result);
+  },
+
+  'POST /api/v1/system/sysUser/get/2': (req: Request, res: Response) => {
+    const data = {
+      id: 2,
+      account: 'test_account2',
+    };
+    const result = {
+      code: 0,
+      data: data,
+    };
+    return res.json(result);
+  },
 };

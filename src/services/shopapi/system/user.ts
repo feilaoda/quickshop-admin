@@ -11,8 +11,9 @@ export async function getUsers(
   body?: { [key: string]: any },
   options?: { [key: string]: any },
 ) {
+  console.log('POST /api/v1/system/sysUser/query');
   const { ...queryParams } = params;
-  return request<API.ResultEntity>(`/v1/system/sysUser/query`, {
+  return request<API.ResultEntity>(`/api/v1/system/sysUser/query`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -24,7 +25,7 @@ export async function getUsers(
 }
 
 export async function getUser(id: string, options?: { [key: string]: any }) {
-  return request<API.ResultEntity>(`/v1/system/sysUser/get/` + id, {
+  return request<API.ResultEntity>(`/api/v1/system/sysUser/get/` + id, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ export async function getUser(id: string, options?: { [key: string]: any }) {
 }
 
 export async function createUser(body?: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<API.ResultEntity>(`/v1/system/sysUser/create`, {
+  return request<API.ResultEntity>(`/api/v1/system/sysUser/create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
