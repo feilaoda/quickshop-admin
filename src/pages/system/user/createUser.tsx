@@ -241,7 +241,7 @@ export default (props) => {
             name: res.account,
             password: '',
             gender: res.gender,
-            phone: res.gender,
+            phone: res.phone,
             'department.id': res.departmentId,
             roleIds: [],
           });
