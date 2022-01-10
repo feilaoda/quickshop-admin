@@ -256,6 +256,7 @@ export default (props) => {
             status: res.status,
             departmentId: res.departmentId,
             roleIds: collectIds(res.roles || []),
+            'department.id': res.departmentId,
           });
           form.reset();
         }
