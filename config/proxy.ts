@@ -16,11 +16,11 @@ export default {
     //   // 依赖 origin 的功能可能需要这个，比如 cookie
     //   changeOrigin: true,
     // },
-    // '/v1/': {
-    //   target: 'http://127.0.0.1:8181',
-    //   changeOrigin: true,
-    //   pathRewrite: { '^': '' },
-    // },
+    '/api/v1/': {
+      target: 'http://127.0.0.1:8181',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
   },
   test: {
     '/api/': {

@@ -55,47 +55,78 @@
   //   component: './TableList',
   // },
   {
-    name: '系统',
+    name: '系统管理',
     path: '/system',
     routes: [
       {
-        name: '用户',
-        path: '/system/user',
+        name: '用户管理',
+        path: '/system/sysUser',
         component: './system/user',
       },
-      // {
-      //   name: 'role',
-      //   path: '/system/role',
-      //   component: './Welcome',
-      // },
-      // {
-      //   name: 'department',
-      //   path: '/system/department',
-      //   component: './Welcome',
-      // },
-      // {
-      //   name: 'permission',
-      //   path: '/system/permission',
-      //   component: './Welcome',
-      // },
+
+      {
+        name: '角色管理',
+        path: '/system/sysRole',
+        component: './system/role',
+      },
+      {
+        name: '部门管理',
+        path: '/system/sysDepartment',
+        component: './system/department',
+      },
+      {
+        name: '权限管理',
+        path: '/system/sysPermission',
+        component: './system/permission',
+      },
       {
         name: '创建用户',
-        path: '/system/user/createOrEdit',
+        path: '/system/sysUser/createOrEdit',
         hideInMenu: true,
         component: './system/user/createUser',
       },
       {
         name: '创建用户',
-        path: '/system/user/createOrEdit/:userId',
+        path: '/system/sysUser/createOrEdit/:userId',
         hideInMenu: true,
         component: './system/user/createUser',
       },
-      // {
-      //   name: 'system3',
-      //   path: '/system/user/create3',
-      //   hideInMenu: true,
-      //   component: './system/user/createUser',
-      // },
+      {
+        name: '创建角色',
+        path: '/system/sysRole/createOrEdit',
+        hideInMenu: true,
+        component: './system/role/create',
+      },
+      {
+        name: '编辑角色',
+        path: '/system/sysRole/createOrEdit/:id',
+        hideInMenu: true,
+        component: './system/role/create',
+      },
+      {
+        name: '创建部门',
+        path: '/system/sysDepartment/createOrEdit',
+        hideInMenu: true,
+        component: './system/department/create',
+      },
+      {
+        name: '编辑部门',
+        path: '/system/sysDepartment/createOrEdit/:id',
+        hideInMenu: true,
+        component: './system/department/create',
+      },
+      {
+        name: '创建权限',
+        path: '/system/sysPermission/createOrEdit',
+        hideInMenu: true,
+        component: './system/permission/create',
+      },
+      {
+        name: '编辑权限',
+        path: '/system/sysPermission/createOrEdit/:id',
+        hideInMenu: true,
+        component: './system/permission/create',
+      },
     ],
   },
   {

@@ -35,8 +35,11 @@ export async function getUser(id: string, options?: { [key: string]: any }) {
   });
 }
 
-export async function createUser(body?: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<API.ResultEntity>(`/api/v1/system/sysUser/create`, {
+export async function createOrSaveUser(
+  body?: { [key: string]: any },
+  options?: { [key: string]: any },
+) {
+  return request<API.ResultEntity>(`/api/v1/system/sysUser/createOrSave`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,45 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useHistory } from 'umi';
-import { message, Button, Tooltip, Dropdown, Menu, Modal } from 'antd';
-import {
-  EllipsisOutlined,
-  QuestionCircleOutlined,
-  SearchOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import type { ProColumns } from '@ant-design/pro-table';
-import ProTable, { TableDropdown } from '@ant-design/pro-table';
+// import React from 'react';
+import { Link } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { convertData } from '@/utils/convert';
-import shopapi from '@/services/shopapi';
+import { getDepartments, getRoles } from './api';
 
-import { getUsers } from '@/services/ant-design-pro/api';
+import QuickTable from '@/components/QuickTable';
+import type { QuickColumns } from '@/components/QuickTable';
+import { Tooltip } from 'antd';
 
-import { createForm } from '@formily/core';
-import { createSchemaField } from '@formily/react';
-import {
-  Form,
-  FormItem,
-  FormLayout,
-  Input,
-  Select,
-  Cascader,
-  DatePicker,
-  Submit,
-  FormGrid,
-  Upload,
-  ArrayItems,
-  Editable,
-  FormButtonGroup,
-} from '@formily/antd';
-import { action } from '@formily/reactive';
-
-import createUser from './createUser';
-
-const valueEnum = {
-  0: '0',
-  1: '1',
-};
+const module = 'system';
+const resource = 'sysUser';
 
 export type TableListItem = {
   id: string;
@@ -51,66 +21,93 @@ export type TableListItem = {
   createdAt: number;
   status: string;
 };
-const tableListDataSource: TableListItem[] = [];
 
 const StatusEnum = {
-  1: { text: '正常', status: '1' },
-  0: { text: '禁用', status: '0' },
+  1: { text: '正常', status: 1 },
+  0: { text: '禁用', status: 0 },
 };
-const creators = ['付小小', '曲丽丽', '林东东', '陈帅帅', '兼某某'];
-const roles = ['管理员', '部门经理', '大区经理', '业务员', '运维'];
-const departments = ['总部', '市场部门', '销售部门', '财务部', '运维部'];
 
-// for (let i = 0; i < 50; i += 1) {
-//   tableListDataSource.push({
-//     key: i,
-//     account: 'AppName'+i,
-//     name: creators[Math.floor(Math.random() * creators.length)],
-//     roles: roles[Math.floor(Math.random() * roles.length)],
-//     department: departments[Math.floor(Math.random() * departments.length)],
-//     status: valueEnum[Math.floor(Math.random() * 10) % 2],
-//     createdAt: Date.now() - Math.floor(Math.random() * 2000),
-//     phone: (Math.ceil(Math.random() * 100) + 1),
-//   });
-// }
+// const handleGetUsers = (params: any) => {
+//   return shopapi.ResourceApi.getResources('system/sysUser', params);
+//   // const hide = message.loading('正在添加');
+//   // try {
+//   //   return getUsers(params); // shopapi.UserApi.getUsers(params);
+//   // } catch (error) {
+//   //   return false;
+//   // }
+// };
 
-const handleGetUsers = async (params: any) => {
-  // const hide = message.loading('正在添加');
-  try {
-    return getUsers(params); // shopapi.UserApi.getUsers(params);
-  } catch (error) {
-    return false;
-  }
+// const handleGetUsers2 = async (params: any) => {
+//   // const hide = message.loading('正在添加');
+//   try {
+//     return getUsers(params); // shopapi.UserApi.getUsers(params);
+//   } catch (error) {
+//     return false;
+//   }
+// };
+
+const handleDeleteUser = (id: any) => {
+  console.log('delete user', id);
 };
 
 function filterUsers(data: any[]) {
-  // data.forEach(e => {
-  //   if(e.department !== undefined && e.department !== null && e.department.name !== undefined) {
-  //     e['department.name'] = e.department.name
-  //   }
-  // })
   convertData(data, 'department.name');
   convertData(data, 'roles.name');
-  console.log('data:', data);
   return data;
 }
 
-const handleGetUsers2 = async () => {
-  try {
-    const res = false; //await shopapi.userApi;
-    if (res != false) {
-      return res.data;
-    } else {
-      message.error('获取数据失败');
-      return false;
-    }
-  } catch (error) {
-    message.error('获取数据失败');
-    return false;
-  }
-};
+// const schema: any = [
+//   {
+//     name: 'account',
+//     title: '账号',
+//     width: 120,
+//   },
+//   {
+//     name: 'name',
+//     title: '姓名',
+//     width: 200,
+//     searchOp: 'LIKE',
+//   },
+//   {
+//     name: 'departmentId',
+//     title: '部门',
+//     width: 150,
+//     hideInTable: true,
+//     api: 'getResources,departments',
+//   },
+//   {
+//     name: 'department.name',
+//     title: '部门',
+//     width: 150,
+//     search: false,
+//   },
+//   {
+//     name: 'roles.name',
+//     title: '角色',
+//     width: 200,
+//     search: false,
+//   },
+//   {
+//     name: 'phone',
+//     title: '电话',
+//   },
+//   {
+//     name: 'createdAt',
+//     title: '创建时间',
+//   },
+//   {
+//     name: 'status',
+//     title: '状态',
+//     type: 'select',
+//     source: StatusEnum,
+//   },
+//   {
+//     title: '操作',
+//     type: 'option',
+//   },
+// ];
 
-const columns: ProColumns<TableListItem>[] = [
+const columns: QuickColumns<TableListItem>[] = [
   {
     title: '账号',
     dataIndex: 'account',
@@ -119,21 +116,60 @@ const columns: ProColumns<TableListItem>[] = [
   {
     title: '姓名',
     dataIndex: 'name',
+    searchType: 'like',
     width: 200,
+  },
+  {
+    title: '部门',
+    dataIndex: 'department.id',
+    width: 150,
+    hideInTable: true,
+    request: () => {
+      return getDepartments();
+    },
   },
   {
     title: '部门',
     dataIndex: 'department.name',
     width: 150,
+    search: false,
+  },
+  {
+    title: '角色',
+    dataIndex: 'roles.id',
+    // search: false,
+    hideInTable: true,
+    request: () => {
+      return getRoles();
+    },
   },
   {
     title: '角色',
     dataIndex: 'roles.name',
+    search: false,
     width: 200,
+    onCell: () => {
+      return {
+        style: {
+          maxWidth: 200,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+          cursor: 'pointer',
+        },
+      };
+    },
+
+    // render: (text) => (
+    //   <Tooltip placement="leftTop" title={text}>
+    //     {text}
+    //   </Tooltip>
+    // ),
   },
   {
     title: '电话',
     dataIndex: 'phone',
+    search: false,
   },
   {
     title: '创建时间',
@@ -143,93 +179,35 @@ const columns: ProColumns<TableListItem>[] = [
   {
     title: '状态',
     dataIndex: 'status',
-    onFilter: true,
+    // onFilter: true,
     valueEnum: StatusEnum,
+    search: false,
   },
   {
     title: '操作',
     width: 180,
     key: 'option',
     valueType: 'option',
-    // renderFormItem: (_, { value }) => [
-    //   <a
-    //     key="link"
-    //     onClick={() => {
-    //       history.push('/system/user/createOrEdit?id=' + value.id);
-    //     }}
-    //   >
-    //     编辑
-    //   </a>,
-    //   <a key="link2">删除</a>,
-    // ],
     render: (_, row) => [
-      <Link key={row.id} to={'/system/user/createOrEdit/' + row.id}>
+      <Link key={row.id} to={'/system/sysUser/createOrEdit/' + row.id}>
         编辑
       </Link>,
-      // <a key="link2">删除</a>,
+      <a key={row.id} onClick={() => handleDeleteUser(row.id)}>
+        删除
+      </a>,
     ],
   },
 ];
 
-const form = createForm({
-  validateFirst: true,
-});
-
 export default () => {
-  const history = useHistory();
-
-  useEffect(() => {}, []);
-
   return (
     <PageContainer title={false}>
-      <ProTable<TableListItem>
+      <QuickTable
+        module={module}
+        resource={resource}
+        title="用户列表"
         columns={columns}
-        request={async (params, sorter, filter) => {
-          // 表单搜索项会从 params 传入，传递给后端接口。
-          const res = await handleGetUsers(params);
-          console.log('get users', res);
-          let dataSource = [];
-          if (res != false) {
-            const data = filterUsers(res.data);
-            dataSource = data;
-          }
-          // .then(res => {
-          //   if(res != false) {
-          //     tableListDataSource
-          //   }
-          // })
-          console.log(params, sorter, filter);
-          return Promise.resolve({
-            data: dataSource,
-            success: true,
-            total: res.page?.total,
-          });
-        }}
-        rowKey="id"
-        pagination={{
-          pageSize: 10,
-          showQuickJumper: true,
-        }}
-        search={{
-          layout: 'vertical',
-          defaultCollapsed: false,
-        }}
-        dateFormatter="string"
-        toolbar={{
-          title: '用户列表',
-        }}
-        toolBarRender={() => [
-          // <Button
-          //   key="button"
-          //   icon={<PlusOutlined />}
-          //   type="primary"
-          //   onClick={() => {
-          //     history.push('/system/user/createOrEdit');
-          //   }}
-          // >
-          //   新建
-          // </Button>,
-        ]}
+        afterQuery={filterUsers}
       />
     </PageContainer>
   );

@@ -137,7 +137,7 @@ const errorHandler = (error) => {
 
   const errortext = codeMessage[response.status] || response.statusText;
   const { status, url, body } = response;
-  console.log('errorhandler', error, response, body);
+  console.log('errorhandler', error, response, body, JSON.stringify(body.text));
   if (status === 401) {
     // 防抖
     if (expireTimeout) {
@@ -149,11 +149,18 @@ const errorHandler = (error) => {
 
     return;
   }
-  message.error(`请求错误，请联系系统管理员`);
-  // notification.error({
-  //   message: `请求错误 ${status}: `,
-  //   description: errortext,
-  // });
+
+  response.json().then((res) => {
+    console.log('res', res);
+    notification.error({
+      // title: '错误',
+      message: `请求错误`,
+      description: `${res.message}`,
+      duration: 2,
+    });
+  });
+  // const bodyText = await response.json();
+  // message.error(`请求错误，请联系系统管理员`);
 
   // environment should not be used
   // if (status === 403) {
@@ -169,11 +176,11 @@ const errorHandler = (error) => {
   // }
 };
 
-// export const request: RequestConfig = {
-//   timeout: 2000,
-//   errorConfig: {},
-//   // errorHandler: errorHandler,
-//   middlewares: [tokenMiddleware],
-//   requestInterceptors: [],
-//   responseInterceptors: [],
-// };
+export const request: RequestConfig = {
+  timeout: 2000,
+  // errorConfig: {},
+  errorHandler: errorHandler,
+  // middlewares: [tokenMiddleware],
+  requestInterceptors: [],
+  responseInterceptors: [],
+};

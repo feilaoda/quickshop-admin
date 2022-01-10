@@ -89,3 +89,11 @@ if (pwa) {
 
   clearCache();
 }
+
+notification.config({
+  placement: 'topRight',
+  top: 50,
+  duration: 2,
+  rtl: true,
+  maxCount: 1,
+});

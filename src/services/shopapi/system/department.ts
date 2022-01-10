@@ -5,21 +5,20 @@ export async function getDepartments(
   params?: {
     // path
     /** projectId */
-    _pageIndex?: string;
-    _pageSize?: string;
+    current?: string;
+    pageSize?: string;
   },
   body?: { [key: string]: any },
   options?: { [key: string]: any },
 ) {
   const { ...queryParams } = params;
-  return request<API.ResultEntity>(`/v1/system/sysDepartment/query`, {
+  return request<API.ResultEntity>(`/api/v1/system/sysDepartment/query`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    params: {_pageSize: 1000},
+    params: params,
     data: body,
     ...(options || {}),
   });
 }
-

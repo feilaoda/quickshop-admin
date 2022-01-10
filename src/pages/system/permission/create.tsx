@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { message, Space } from 'antd';
-import { createForm, onFormInit } from '@formily/core';
+import { createForm } from '@formily/core';
 import { createSchemaField } from '@formily/react';
 import {
   Form,
@@ -12,7 +12,6 @@ import {
   DatePicker,
   Submit,
   FormGrid,
-  Upload,
   ArrayItems,
   Editable,
   FormButtonGroup,
@@ -21,18 +20,13 @@ import {
 import { action } from '@formily/reactive';
 import { Card, Button, Spin } from 'antd';
 import { useHistory, useParams, Link } from 'umi';
-import { UploadOutlined } from '@ant-design/icons';
 import shopapi from '@/services/shopapi';
-import { collectIds } from '@/utils/convert';
+import { intConvertToArray, transformData } from '@/utils/convert';
 
-const transformData = (data = {}) => {
-  return Object.entries(data).reduce((buf, [_, value]) => {
-    return buf.concat({
-      label: value.name,
-      value: value.id,
-    });
-  }, []);
-};
+import { Permissions } from './index';
+
+const module = 'system';
+const resource = 'sysPermission';
 
 const SchemaField = createSchemaField({
   components: {
@@ -48,28 +42,9 @@ const SchemaField = createSchemaField({
     Checkbox,
   },
   scope: {
-    fetchDepartments: (field) => {
+    fetchPermissions: (field) => {
       field.loading = true;
-      shopapi.DepartmentApi.getDepartments()
-        .then((res) => {
-          if (res.code == 0) {
-            return res.data;
-          } else {
-            return [];
-          }
-        })
-        .then(
-          action.bound((data) => {
-            const ds = transformData(data);
-            field.dataSource = ds;
-            field.loading = false;
-          }),
-        );
-    },
-
-    fetchRoles: (field) => {
-      field.loading = true;
-      shopapi.RoleApi.getRoles()
+      shopapi.ResourceApi.getResources('system', 'sysPermission', { pageSize: 1000 })
         .then((res) => {
           if (res.code == 0) {
             return res.data;
@@ -88,19 +63,17 @@ const SchemaField = createSchemaField({
   },
 });
 
-const handleCreateUser = async (data) => {
-  if (data.roleIds !== undefined) {
-    const ids = data.roleIds.reduce((buf, val) => {
-      console.log('create roles', val);
-      return buf.concat({
-        id: val,
-      });
-    }, []);
-    data.roles = ids;
+const handleCreateResource = async (data) => {
+  if (data.operations !== undefined) {
+    const ids = data.operations.reduce((buf, val) => {
+      console.log('create roles', buf, val);
+      return buf | val;
+    }, data.operations[0]);
+    data.operation = ids;
   }
-  return shopapi.UserApi.createOrSaveUser(data)
+  return shopapi.ResourceApi.createOrSave(module, resource, data)
     .then((res) => {
-      console.log('create user', res);
+      console.log('create data', res);
       if (res != undefined) {
         if (res.code === 0) {
           message.success('保存成功');
@@ -115,10 +88,10 @@ const handleCreateUser = async (data) => {
     .catch(() => false);
 };
 
-const handleGetUser = async (id) => {
-  return shopapi.UserApi.getUser(id)
+const handleGetResource = async (id: string) => {
+  return shopapi.ResourceApi.getResource(module, resource, id)
     .then((res) => {
-      console.log('create user', res);
+      console.log('get role', res);
       if (res != undefined) {
         if (res.code === 0) {
           return res.data;
@@ -134,135 +107,103 @@ const handleGetUser = async (id) => {
 const schema = {
   type: 'object',
   properties: {
-    account: {
-      type: 'string',
-      title: '账号',
-      required: true,
-      'x-decorator': 'FormItem',
-      'x-component': 'Input',
-    },
     name: {
       type: 'string',
-      title: '姓名',
+      title: '名称',
       'x-decorator': 'FormItem',
       'x-component': 'Input',
     },
-    password: {
+    resource: {
       type: 'string',
-      title: '密码',
+      title: '资源',
       'x-decorator': 'FormItem',
-      'x-component': 'Input',
-    },
-    phone: {
-      type: 'string',
-      title: '电话',
-      'x-decorator': 'FormItem',
-      'x-component': 'Input',
-    },
-    gender: {
-      type: 'number',
-      title: '性别',
+      'x-component': 'Select',
       enum: [
         {
-          label: '男',
+          label: '用户管理',
+          value: 'system:sysUser',
+        },
+        {
+          label: '角色管理',
+          value: 'system:sysRole',
+        },
+        {
+          label: '部门管理',
+          value: 'system:sysDepartment',
+        },
+        {
+          label: '权限管理',
+          value: 'system:sysPermission',
+        },
+      ],
+    },
+    operations: {
+      type: 'string',
+      title: '权限',
+      'x-decorator': 'FormItem',
+      'x-component': 'Checkbox.Group',
+      enum: [
+        {
+          label: '全部',
+          value: 255,
+        },
+        {
+          label: '可读',
           value: 1,
         },
         {
-          label: '女',
+          label: '可写',
           value: 2,
         },
         {
-          label: '未知',
-          value: 0,
+          label: '可删除',
+          value: 4,
         },
       ],
-      'x-decorator': 'FormItem',
-      'x-component': 'Select',
-    },
-    status: {
-      type: 'number',
-      title: '状态',
-      enum: [
-        {
-          label: '正常',
-          value: 1,
-        },
-        {
-          label: '禁用',
-          value: 0,
-        },
-      ],
-      'x-decorator': 'FormItem',
-      'x-component': 'Select',
-    },
-    departmentId: {
-      type: 'string',
-      title: '部门',
-      'x-decorator': 'FormItem',
-      'x-component': 'Select',
-      'x-reactions': ['{{fetchDepartments}}'],
-    },
-    roleIds: {
-      type: 'array',
-      title: '角色',
-      'x-decorator': 'FormItem',
-      'x-component': 'Checkbox.Group',
-      'x-reactions': ['{{fetchRoles}}'],
     },
   },
 };
 
 export default (props) => {
-  const { userId, current } = useParams();
+  const { id } = useParams();
 
   const form = useMemo(
     () =>
       createForm({
         validateFirst: true,
       }),
-    [userId],
+    [id],
   );
 
   const [loading, setLoading] = useState(true);
   const history = useHistory();
 
   useEffect(() => {
-    console.log('effect user id', userId, props);
-    if (!userId) {
+    console.log('effect user id', id, props);
+    if (!id) {
       form.setInitialValues(
         {
-          account: '',
           name: '',
-          password: '',
-          gender: 0,
-          phone: '',
-          status: 1,
-          departmentId: '',
-          roleIds: [],
+          permissionIds: [],
         },
         'overwrite',
       );
       form.reset();
       setLoading(false);
     } else {
-      handleGetUser(userId).then((res) => {
+      handleGetResource(id).then((res) => {
         if (res != false) {
           form.setInitialValues({
-            account: res.account,
-            name: res.account,
-            password: '',
-            gender: res.gender,
-            phone: res.phone,
-            status: res.status,
-            departmentId: res.departmentId,
-            roleIds: collectIds(res.roles || []),
+            name: res.name,
+            resource: res.resource,
+            operations: intConvertToArray(Permissions, res.operation || 0),
           });
           form.reset();
         }
         setLoading(false);
       });
     }
-  }, [userId]);
+  }, [id]);
 
   return (
     <div
@@ -273,7 +214,7 @@ export default (props) => {
         padding: '40px 0',
       }}
     >
-      <Card title="编辑用户" style={{ width: 620 }}>
+      <Card title="编辑权限" style={{ width: 620 }}>
         <Spin spinning={loading}>
           <Form
             form={form}
@@ -281,11 +222,11 @@ export default (props) => {
             wrapperCol={16}
             onAutoSubmit={(params) => {
               console.log('submit', params);
-              params.id = userId;
-              handleCreateUser(params).then((res) => {
+              params.id = id;
+              handleCreateResource(params).then((res) => {
                 if (res) {
                   form.reset();
-                  history.push('/system/sysUser');
+                  history.push('/' + module + '/' + resource);
                 }
               });
             }}
@@ -296,11 +237,12 @@ export default (props) => {
                 <Submit block size="middle">
                   提交
                 </Submit>
+
                 <Button
                   block
                   size="middle"
                   onClick={() => {
-                    history.push('/system/sysUser');
+                    history.push('/' + module + '/' + resource);
                   }}
                 >
                   返回
