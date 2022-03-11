@@ -86,7 +86,7 @@ const columns: QuickColumns<TableListItem>[] = [
     key: 'option',
     valueType: 'option',
     render: (_, row) => [
-      <Link key={row.id} to={'/' + module + '/' + resource + '/createOrEdit/' + row.id}>
+      <Link key={'edit' + row.id} to={'/' + module + '/' + resource + '/createOrEdit/' + row.id}>
         编辑
       </Link>,
       <a key={row.id} onClick={() => handleDeleteResource(row.id)}>

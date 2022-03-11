@@ -21,23 +21,38 @@ declare type QuickTableProps = {
   title?: string;
   schema?: any;
   columns?: QuickColumns[];
-  queryAction?: any;
+  request?: any;
+  beforeSearchSubmit?: any;
   afterQuery?: any;
   createUrl?: string;
+  addDisable?: boolean;
+  toolBarRender: any;
 };
 
 const QuickTable = (props: QuickTableProps) => {
   const history = useHistory();
-  const { module, resource, title, schema, columns, queryAction, afterQuery, createUrl } = props;
-  if (schema) {
-    const newColumns = convertSchemaToColumns(schema);
-  }
+  const {
+    module,
+    resource,
+    title,
+    schema,
+    columns,
+    request,
+    beforeSearchSubmit,
+    afterQuery,
+    createUrl,
+    addDisable,
+    toolBarRender,
+  } = props;
+  // if (schema) {
+  //   const newColumns = convertSchemaToColumns(schema);
+  // }
 
   const searchMapping = useMemo(() => {
     const searchs = {};
     columns?.forEach((column) => {
       if (column.searchType && column.dataIndex) {
-        searchs['' + column.dataIndex] = column.searchType;
+        searchs['' + column.dataIndex] = '_' + column.searchType.toLowerCase();
       }
     });
     return searchs;
@@ -48,15 +63,23 @@ const QuickTable = (props: QuickTableProps) => {
       columns={columns}
       request={async (params, sorter, filter) => {
         console.log('get table params', params);
+        if (beforeSearchSubmit) {
+          beforeSearchSubmit(params);
+        }
         Object.keys(params).forEach((key) => {
           if (searchMapping[key]) {
-            params[key + '$' + searchMapping[key]] = params[key];
+            const value = params[key];
+            const op: string = searchMapping[key];
+            const ops = {};
+            ops[op] = value;
             delete params[key];
+            // params[key + '$' + searchMapping[key]] = value;
+            params[key] = ops;
           }
         });
 
-        const action = queryAction
-          ? queryAction
+        const action = request
+          ? request
           : (p: any) => {
               return handleGetResources(module, resource, p);
             };
@@ -74,14 +97,14 @@ const QuickTable = (props: QuickTableProps) => {
           total: res.page?.total,
         });
       }}
-      rowKey="id"
+      // rowKey="id"
       pagination={{
         pageSize: 10,
         showQuickJumper: true,
       }}
       search={{
         layout: 'vertical',
-        defaultCollapsed: false,
+        defaultCollapsed: true,
         labelWidth: 'auto',
         optionRender: (searchConfig, formProps, dom) => [...dom.reverse()],
       }}
@@ -89,18 +112,24 @@ const QuickTable = (props: QuickTableProps) => {
       toolbar={{
         title: title,
       }}
-      toolBarRender={() => [
-        <Button
-          key="button"
-          icon={<PlusOutlined />}
-          type="primary"
-          onClick={() => {
-            history.push(createUrl || '/' + module + '/' + resource + '/createOrEdit');
-          }}
-        >
-          新建
-        </Button>,
-      ]}
+      toolBarRender={() => {
+        if (toolBarRender !== undefined) {
+          return toolBarRender();
+        } else {
+          return [
+            <Button
+              key="button"
+              icon={<PlusOutlined />}
+              type="primary"
+              onClick={() => {
+                history.push(createUrl || '/' + module + '/' + resource + '/createOrEdit');
+              }}
+            >
+              新建
+            </Button>,
+          ];
+        }
+      }}
     />
   );
 };

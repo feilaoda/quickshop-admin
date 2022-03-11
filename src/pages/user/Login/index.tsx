@@ -50,17 +50,26 @@ const Login: React.FC = () => {
     try {
       // 登录
       const msg = await login({ ...values, type });
-      if (msg.status === 'ok') {
+      if (msg.code === 0) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
           defaultMessage: '登录成功！',
         });
+        const token = msg.data.token;
+        await setInitialState((s) => ({
+          ...s,
+          token: token,
+        }));
+        localStorage.setItem('token', token);
         message.success(defaultLoginSuccessMessage);
         await fetchUserInfo();
         /** 此方法会跳转到 redirect 参数所在的位置 */
         if (!history) return;
         const { query } = history.location;
-        const { redirect } = query as { redirect: string };
+        let { redirect } = query as { redirect: string };
+        if (redirect === '/user/login') {
+          redirect = '/';
+        }
         history.push(redirect || '/');
         return;
       }

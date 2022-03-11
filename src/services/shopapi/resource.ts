@@ -1,4 +1,6 @@
+import { deleteEnumData } from '@/utils/convert';
 import { request } from 'umi';
+import { action } from '@formily/reactive';
 
 export async function getResource(
   module: string,
@@ -6,6 +8,7 @@ export async function getResource(
   id: string,
   options?: { [key: string]: any },
 ) {
+  console.log('POST /api/v1/' + module + '/' + resource + '/get/' + id);
   return request<API.ResultEntity>('/api/v1/' + module + '/' + resource + '/get/' + id, {
     method: 'POST',
     headers: {
@@ -22,7 +25,6 @@ export async function getResources(
     current?: string;
     pageSize?: number;
   },
-  body?: { [key: string]: any },
   options?: { [key: string]: any },
 ) {
   console.log('POST /api/v1/' + module + '/' + resource + '/query');
@@ -33,7 +35,7 @@ export async function getResources(
   delete params?.current;
   delete params?.pageSize;
   const data = {
-    args: params,
+    filter: params,
     page: page,
   };
   return request<API.ResultEntity>('/api/v1/' + module + '/' + resource + '/query', {
@@ -53,7 +55,7 @@ export async function createOrSave(
   body?: { [key: string]: any },
   options?: { [key: string]: any },
 ) {
-  return request<API.ResultEntity>('/api/v1/' + module + '/' + resource + '/createOrSave', {
+  return request<API.ResultEntity>('/api/v1/' + module + '/' + resource + '/save', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,17 +65,61 @@ export async function createOrSave(
   });
 }
 
-const transformData = (data = []) => {
+const transformData = (data = [], key?: string) => {
+  const name = key ? key : 'name';
   return data.reduce((buf, value: any) => {
     return buf.concat({
-      label: value.name,
+      label: value[name],
       value: value.id,
     });
   }, []);
 };
 
-export function fetchEnumResources(module: string, resource: string) {
-  return getResources(module, resource, { pageSize: 500 })
+export async function fetchResource(module: string, resource: string, id: string) {
+  return getResource(module, resource, id)
+    .then((res) => {
+      console.log('get role', res);
+      if (res != undefined) {
+        if (res.code === 0) {
+          return res.data;
+        } else {
+          return false;
+        }
+      }
+      return false;
+    })
+    .catch(() => false);
+}
+
+export async function fetchResources(
+  module: string,
+  resource: string,
+  params?: Record<string, any>,
+) {
+  const newParams = params || {};
+  return getResources(module, resource, { ...newParams, pageSize: 10000 })
+    .then((res) => {
+      if (res.code == 0) {
+        return res.data;
+      } else {
+        return [];
+      }
+    })
+    .catch(() => false);
+}
+
+export function fetchSelectResources(module: string, resource: string) {
+  return fetchEnumResources(module, resource, '', {});
+}
+
+export function fetchEnumResources(
+  module: string,
+  resource: string,
+  id?: string,
+  params?: Record<string, any>,
+) {
+  const newParams = params || {};
+  return getResources(module, resource, { pageSize: 10000, ...newParams })
     .then((res) => {
       if (res.code == 0) {
         return res.data;
@@ -82,6 +128,29 @@ export function fetchEnumResources(module: string, resource: string) {
       }
     })
     .then((data) => {
-      return transformData(data);
+      const res = transformData(data);
+      if (id !== undefined) {
+        return deleteEnumData(res, id);
+      } else {
+        return res;
+      }
+    })
+    .catch(() => {
+      return [];
     });
+}
+
+export function fetchFieldResources(
+  field: any,
+  module: string,
+  resource: string,
+  id?: string,
+  params?: Record<string, any>,
+) {
+  return fetchEnumResources(module, resource, id, params).then(
+    action.bound((data) => {
+      field.dataSource = data;
+      field.loading = false;
+    }),
+  );
 }

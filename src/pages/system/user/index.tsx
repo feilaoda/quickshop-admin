@@ -6,7 +6,7 @@ import { getDepartments, getRoles } from './api';
 
 import QuickTable from '@/components/QuickTable';
 import type { QuickColumns } from '@/components/QuickTable';
-import { Tooltip } from 'antd';
+import shopapi from '@/services/shopapi';
 
 const module = 'system';
 const resource = 'sysUser';
@@ -137,7 +137,6 @@ const columns: QuickColumns<TableListItem>[] = [
   {
     title: '角色',
     dataIndex: 'roles.id',
-    // search: false,
     hideInTable: true,
     request: () => {
       return getRoles();
@@ -147,6 +146,7 @@ const columns: QuickColumns<TableListItem>[] = [
     title: '角色',
     dataIndex: 'roles.name',
     search: false,
+    // searchType: 'like',
     width: 200,
     onCell: () => {
       return {
@@ -189,7 +189,7 @@ const columns: QuickColumns<TableListItem>[] = [
     key: 'option',
     valueType: 'option',
     render: (_, row) => [
-      <Link key={row.id} to={'/system/sysUser/createOrEdit/' + row.id}>
+      <Link key={'edit' + row.id} to={'/system/sysUser/createOrEdit/' + row.id}>
         编辑
       </Link>,
       <a key={row.id} onClick={() => handleDeleteUser(row.id)}>
@@ -205,6 +205,7 @@ export default () => {
       <QuickTable
         module={module}
         resource={resource}
+        deepQuery={true}
         title="用户列表"
         columns={columns}
         afterQuery={filterUsers}

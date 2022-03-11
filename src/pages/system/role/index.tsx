@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useHistory } from 'umi';
+import { Link } from 'umi';
 
-import type { ProColumns } from '@ant-design/pro-table';
-import ProTable, { TableDropdown } from '@ant-design/pro-table';
 import { PageContainer } from '@ant-design/pro-layout';
 import { convertData } from '@/utils/convert';
 import shopapi from '@/services/shopapi';
-import { getDepartments } from './api';
 
-import { getUsers } from '@/services/ant-design-pro/api';
-
-import QuickTable, { QuickColumns } from '@/components/QuickTable';
+import type { QuickColumns } from '@/components/QuickTable';
+import QuickTable from '@/components/QuickTable';
 
 export type TableListItem = {
   id: string;
@@ -32,7 +28,7 @@ const handleDeleteResource = (id: any) => {
 
 function filterResources(data: any[]) {
   convertData(data, 'permissions.name');
-  console.log('data:', data);
+  // console.log('data:', data);
   return data;
 }
 
@@ -66,7 +62,7 @@ const columns: QuickColumns<TableListItem>[] = [
     key: 'option',
     valueType: 'option',
     render: (_, row) => [
-      <Link key={row.id} to={'/system/sysRole/createOrEdit/' + row.id}>
+      <Link key={'edit' + row.id} to={'/' + module + '/' + resource + '/createOrEdit/' + row.id}>
         编辑
       </Link>,
       <a key={row.id} onClick={() => handleDeleteResource(row.id)}>
@@ -84,6 +80,7 @@ export default () => {
       <QuickTable
         module={module}
         resource={resource}
+        deepQuery={true}
         title="角色列表"
         columns={columns}
         afterQuery={filterResources}

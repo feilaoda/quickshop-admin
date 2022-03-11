@@ -78,7 +78,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
-    // unAccessible: <div>unAccessible</div>,
+    unAccessible: <div>unAccessible</div>,
     // 增加一个 loading 的状态
     // childrenRender: (children) => {
     //   if (initialState.loading) return <PageLoading />;
@@ -123,10 +123,14 @@ function loginExpire() {
   });
   // @HACK
   /* eslint-disable no-underscore-dangle */
-  window.g_app._store.dispatch({
-    type: 'login/loginExpire',
-  });
-  return;
+  if (window.g_app) {
+    window.g_app._store.dispatch({
+      type: 'login/loginExpire',
+    });
+    return;
+  } else {
+    history.push(loginPath);
+  }
 }
 
 /**
@@ -134,11 +138,20 @@ function loginExpire() {
  */
 const errorHandler = (error) => {
   const { response = {} } = error;
-
   const errortext = codeMessage[response.status] || response.statusText;
   const { status, url, body } = response;
-  console.log('errorhandler', error, response, body, JSON.stringify(body.text));
-  if (status === 401) {
+  console.log('errorhandler', error, url, response, body, JSON.stringify(body.text));
+  if (status === 504) {
+    notification.error({
+      // title: '错误',
+      message: `网络错误`,
+      description: `Gateway Timeout`,
+      duration: 2,
+    });
+    return;
+  }
+
+  if (status === 401 && history.location.pathname !== loginPath) {
     // 防抖
     if (expireTimeout) {
       clearTimeout(expireTimeout);
@@ -149,6 +162,8 @@ const errorHandler = (error) => {
 
     return;
   }
+
+  // console.log('response', response);
 
   response.json().then((res) => {
     console.log('res', res);
@@ -180,7 +195,7 @@ export const request: RequestConfig = {
   timeout: 2000,
   // errorConfig: {},
   errorHandler: errorHandler,
-  // middlewares: [tokenMiddleware],
+  middlewares: [tokenMiddleware],
   requestInterceptors: [],
   responseInterceptors: [],
 };

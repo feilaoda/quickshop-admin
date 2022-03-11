@@ -117,44 +117,44 @@ export default {
       address: 'Sidney No. 1 Lake Park',
     },
   ],
-  'POST /api/login/account': async (req: Request, res: Response) => {
-    const { password, username, type } = req.body;
-    await waitTime(2000);
-    if (password === 'ant.design' && username === 'admin') {
-      res.send({
-        status: 'ok',
-        type,
-        currentAuthority: 'admin',
-      });
-      access = 'admin';
-      return;
-    }
-    if (password === 'ant.design' && username === 'user') {
-      res.send({
-        status: 'ok',
-        type,
-        currentAuthority: 'user',
-      });
-      access = 'user';
-      return;
-    }
-    if (type === 'mobile') {
-      res.send({
-        status: 'ok',
-        type,
-        currentAuthority: 'admin',
-      });
-      access = 'admin';
-      return;
-    }
+  // 'POST /api/login/account': async (req: Request, res: Response) => {
+  //   const { password, username, type } = req.body;
+  //   await waitTime(2000);
+  //   if (password === 'ant.design' && username === 'admin') {
+  //     res.send({
+  //       status: 'ok',
+  //       type,
+  //       currentAuthority: 'admin',
+  //     });
+  //     access = 'admin';
+  //     return;
+  //   }
+  //   if (password === 'ant.design' && username === 'user') {
+  //     res.send({
+  //       status: 'ok',
+  //       type,
+  //       currentAuthority: 'user',
+  //     });
+  //     access = 'user';
+  //     return;
+  //   }
+  //   if (type === 'mobile') {
+  //     res.send({
+  //       status: 'ok',
+  //       type,
+  //       currentAuthority: 'admin',
+  //     });
+  //     access = 'admin';
+  //     return;
+  //   }
 
-    res.send({
-      status: 'error',
-      type,
-      currentAuthority: 'guest',
-    });
-    access = 'guest';
-  },
+  //   res.send({
+  //     status: 'error',
+  //     type,
+  //     currentAuthority: 'guest',
+  //   });
+  //   access = 'guest';
+  // },
   'POST /api/login/outLogin': (req: Request, res: Response) => {
     access = '';
     res.send({ data: {}, success: true });

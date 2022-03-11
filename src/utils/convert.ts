@@ -29,19 +29,43 @@ export function collectIds(data: any[]) {
   return res;
 }
 
-export function transformData(data: Record<string, any>) {
+export function transformMapData(data: Record<string, any>, key?: string) {
+  const name = key ? key : 'name';
   return Object.entries(data).reduce((buf, [_, v]) => {
     return buf.concat({
-      label: v.name,
+      label: v[name],
       value: v.id,
     });
   }, []);
 }
 
-export function deleteData(data: Record<string, any>, id: string) {
-  return data.filter((e: any) => e.value != id);
+export function transformData(data = [], key?: string) {
+  const name = key ? key : 'name';
+  return data.reduce((buf, value: any) => {
+    return buf.concat({
+      label: value[name],
+      value: value.id,
+    });
+  }, []);
 }
 
+export function convertFieldToIdArray(data: any, source: string, target: string) {
+  if (data[source] !== undefined) {
+    const ids = data[source].reduce((buf, val) => {
+      return buf.concat({
+        id: val,
+      });
+    }, []);
+    data[target] = ids;
+  }
+}
+
+export function deleteData(data: Record<string, any>, id?: string) {
+  return data.filter((e: any) => e.value != id);
+}
+export function deleteEnumData(data: Record<string, any>, id?: string) {
+  return data.filter((e: any) => e.value != id);
+}
 export function intConvertToArray(arr: any[], num: number) {
   const res: number[] = [];
   arr.forEach((v) => {
